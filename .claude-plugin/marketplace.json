@@ -1,0 +1,23 @@
+{
+  "name": "jakob-local",
+  "owner": {
+    "name": "Jakob"
+  },
+  "plugins": [
+    {
+      "name": "terminal-look",
+      "source": "./terminal-look",
+      "description": "Terminal-style dark look matched to Ghostty's default colors"
+    },
+    {
+      "name": "terminal-status",
+      "source": "./terminal-status",
+      "description": "Terminal-style status line above the message box: model, folder (git branch), context used"
+    },
+    {
+      "name": "terminal-text",
+      "source": "./terminal-text",
+      "description": "Draws replies and your messages in the desktop app's monospaced face, like a terminal"
+    }
+  ]
+}

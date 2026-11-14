@@ -1,0 +1,1 @@
+{ "name": "terminal-status", "version": "0.1.0", "description": "A Claude Code terminal-style status line above the message box: model, folder (git branch), context used", "types": "./types/index.d.ts" }
