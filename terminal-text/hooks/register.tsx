@@ -8,13 +8,41 @@ import type { Block, Inline } from './markdown'
 // keep the app's own code view. The terminal is already monospaced: left alone.
 const CODE_COLOR = '#82aaff'
 
+// A message's photos and files are drawn by the app's own row, which this
+// mod's text-only drawing would replace. So the prompts sent with an
+// attachment are remembered (as typed) and their rows left to the app.
+const WITH_MEDIA = 'promptsWithMedia'
+const MAX_REMEMBERED = 300
+
 export const register: Register = on => {
-  on('ui.render', { component: ['AssistantMessage', 'UserMessage'] }, ($, e, next) => {
+  on('prompt.submit', async ($, e, next) => {
+    if (e.attachments !== undefined && e.attachments.length > 0) {
+      const key = e.text.trim()
+      await $.store
+        .get(WITH_MEDIA)
+        .then(seen => {
+          const list = Array.isArray(seen) ? seen.filter((t): t is string => typeof t === 'string') : []
+
+          return $.store.set(WITH_MEDIA, [...list.filter(t => t !== key), key].slice(-MAX_REMEMBERED))
+        })
+        .catch(() => undefined)
+    }
+
+    return next(e)
+  })
+
+  on('ui.render', { component: ['AssistantMessage', 'UserMessage'] }, async ($, e, next) => {
     if (e.surface !== 'desktop') {
       return next(e)
     }
-    if (e.component === 'UserMessage' && !e.props.isExpanded) {
-      return next(e)
+    if (e.component === 'UserMessage') {
+      if (!e.props.isExpanded || e.props.text.trim() === '') {
+        return next(e)
+      }
+      const seen = await $.store.get(WITH_MEDIA)
+      if (Array.isArray(seen) && seen.includes(e.props.text.trim())) {
+        return next(e)
+      }
     }
     const { Box, Text, Link, Code } = $.ui.resolve(e)
 
